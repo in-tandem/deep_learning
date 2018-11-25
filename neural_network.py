@@ -1,6 +1,6 @@
 import numpy as np 
 
-
+##TODO : mini batches and cost function at end of each epoch
 class BackPropagationNeuralNetwork(object):
 
     def __init__(self, learning_rate, epochs, batchsize = 50, hidden_layers = [30]):
