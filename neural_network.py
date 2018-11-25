@@ -28,6 +28,7 @@ class BackPropagationNeuralNetwork(object):
     def feedforward(self, x, y):
         
         self.activations_at_each_layer = []
+        self.activation_derivative_at_each_layer = []
         
         neurons_at_each_layer = x
         
@@ -36,6 +37,7 @@ class BackPropagationNeuralNetwork(object):
             z = np.dot(self.weights[layer].T, neurons_at_each_layer) + self.biases[layer]
 
             self.activations_at_each_layer.append(self.calculateActivation(z))
+            self.activation_derivative_at_each_layer.append(self.calculateDerivativeOfActivation(z))
 
             neurons_at_each_layer = z
 
@@ -46,17 +48,21 @@ class BackPropagationNeuralNetwork(object):
     def calculateErrorDerivativeAtOutputLayer(self, z, y):
 
         return np.dot(z -y,  self.calculateDerivativeOfActivation(z))
+
+        
     
     def backpropagate(self, error_cost):
         
         error_at_current_layer = error_cost[0]
-        
+
+        error_cost_at_current_layer = error_cost[1]
+
         for layer in range(len(self.hidden_layers)):
 
             activation_at_previous_layer = self.activations_at_each_layer[: 0 - layer]
 
 
-            error_at_previous_layer = np.dot(error_at_current_layer , self.weights[: 0 - layer]) * error_cost[1]
+            error_at_previous_layer = np.dot(error_at_current_layer , self.weights[: 0 - layer]) * self.activation_derivative_at_each_layer[: 0 - layer]
 
 
             self.weights[: 0 - layer ] = self.weights[: 0 - layer ] - (self.learning_rate * np.dot(error_at_current_layer, activation_at_previous_layer))
