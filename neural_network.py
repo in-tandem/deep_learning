@@ -32,9 +32,9 @@ class BackPropagationNeuralNetwork(object):
         
         neurons_at_each_layer = x
         
-        for layer in range(len(self.hidden_layers + 1)):
+        for layer in range(len(self.hidden_layers) + 1):
 
-            z = np.dot(self.weights[layer].T, neurons_at_each_layer) + self.biases[layer]
+            z = np.dot(neurons_at_each_layer , self.weights[layer]) + self.biases[layer]
 
             self.activations_at_each_layer.append(self.calculateActivation(z))
             self.activation_derivative_at_each_layer.append(self.calculateDerivativeOfActivation(z))
@@ -47,7 +47,7 @@ class BackPropagationNeuralNetwork(object):
 
     def calculateErrorDerivativeAtOutputLayer(self, z, y):
 
-        return np.dot(z -y,  self.calculateDerivativeOfActivation(z))
+        return (z -y) * self.calculateDerivativeOfActivation(z)
 
         
     
@@ -57,21 +57,17 @@ class BackPropagationNeuralNetwork(object):
 
         error_cost_at_current_layer = error_cost[1]
 
-        for layer in range(len(self.hidden_layers)):
+        for layer in range(1, len(self.hidden_layers)+1):
 
-            activation_at_previous_layer = self.activations_at_each_layer[: 0 - layer]
+            activation_at_previous_layer = self.activations_at_each_layer[0 - layer]
 
+            error_at_previous_layer = np.dot(error_at_current_layer , self.weights[0 - layer].T) * self.activation_derivative_at_each_layer[0 - layer - 1]
 
-            error_at_previous_layer = np.dot(error_at_current_layer , self.weights[: 0 - layer]) * self.activation_derivative_at_each_layer[: 0 - layer]
+            self.weights[0 - layer ] = self.weights[ 0 - layer ] - (self.learning_rate * np.dot(error_at_current_layer, activation_at_previous_layer.T))
 
-
-            self.weights[: 0 - layer ] = self.weights[: 0 - layer ] - (self.learning_rate * np.dot(error_at_current_layer, activation_at_previous_layer))
-
-            self.biases[: 0 - layer] = self.biases[: 0 - layer] - (self.learning_rate * error_at_current_layer)
+            self.biases[ 0 - layer] = self.biases[ 0 - layer] - (self.learning_rate * error_at_current_layer)
 
             error_at_current_layer = error_at_previous_layer
-
-
 
 
     def initializeWeights(self,number_of_neurons, number_of_layers, number_of_output_neurons):
@@ -88,16 +84,19 @@ class BackPropagationNeuralNetwork(object):
 
         ## setting up number of layers to have the value for number of input layer neurons. 
         ## this will simplify our zip function
-        number_of_layers = number_of_neurons + number_of_layers
+        a = [number_of_neurons]
+        a.extend(number_of_layers)
+        a.append(number_of_output_neurons)
 
         ## adding random weights for the hidden layers
-        self.weights.extend([np.random.randn(y, x) for x,y in zip(number_of_layers[: -1], number_of_layers[: 1])])
+        self.weights.extend([np.random.randn(y, x) for x,y in zip(a[1:], a[: -1])])
 
+        print(self.weights)
         ## adding random weights for the output layer
-        self.weights.append(np.random.randn(number_of_neurons,number_of_output_neurons))
+        # self.weights.append(np.random.randn(number_of_neurons,number_of_output_neurons))
 
 
-    def initializeBiases(self, number_of_layers, number_of_output_neurons):
+    def initializeBiases(self, number_of_samples, number_of_layers, number_of_output_neurons):
         """
 
             say number of neurons in each layer is 3. then bias matrix should be 3 *1 for each
@@ -106,11 +105,13 @@ class BackPropagationNeuralNetwork(object):
         """
         self.biases = []
 
+        # self.biases.append(np.random.randn(number_of_samples, 1))
+
         ## adding random biases for the hidden layers
-        self.biases.extend([np.random.randn(i, 1) for i in number_of_layers])
+        self.biases.extend([np.random.randn(i) for i in number_of_layers])
 
         ## adding random biases for the output layer
-        self.biases.append(np.random.randn(number_of_output_neurons, 1))
+        self.biases.append(np.random.randn(number_of_output_neurons))
 
 
     
@@ -140,11 +141,14 @@ class BackPropagationNeuralNetwork(object):
 
         :param x: this is a n * m matrix. n is the number of samples, m is the number of features
         """
-        
-        self.initializeBiases(self.hidden_layers, y.shape[0])
-        self.initializeWeights(x.shape[1], self.hidden_layers, y.shape[0])
+        self.cost_matrix = {}
+        number_of_output_neurons = np.unique(y).shape[0]
+        self.initializeBiases(x.shape[0], self.hidden_layers, number_of_output_neurons)
+        self.initializeWeights(x.shape[1], self.hidden_layers, number_of_output_neurons)
 
-        for epoch in self.epochs:
+        y = self.one_hot_encode_target(y)
+
+        for epoch in range(self.epochs):
             
             ## for each layer, calc the activation function and feed forward
             ## when at the end layer or output layer, calculate the error and back propagate
@@ -153,6 +157,12 @@ class BackPropagationNeuralNetwork(object):
 
             error_cost_at_output_layer = self.feedforward(x, y)
 
+            predictions_at_this_epoch = self.activations_at_each_layer[len(self.activations_at_each_layer) - 1]
+
+            # predicted_y = np.argmax(predictions_at_this_epoch, axis =1)
+
+            self.cost_matrix[epoch] = self.calculateCost(y, predictions_at_this_epoch)
+
             self.backpropagate(error_cost_at_output_layer)
 
 
@@ -160,6 +170,23 @@ class BackPropagationNeuralNetwork(object):
     def predict(self, x):
         pass
 
+
+    def calculateCost(self, y, y_predicted):
+
+        term1 = - y * np.log(y_predicted)
+        term2 = ( 1 - y) * np.log(1 - y_predicted)
+        return np.sum(term1 -  term2)
+
+
+    def one_hot_encode_target(self, y):
+
+        onehot = np.zeros((np.unique(y).shape[0], y.shape[0]))
+
+        for i , val in enumerate(y.astype(int)):
+
+            onehot[val, i] = 1
+
+        return onehot.T
 
 
 
