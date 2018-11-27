@@ -27,8 +27,8 @@ class BackPropagationNeuralNetwork(object):
 
     def feedforward(self, x, y):
         
-        self.activations_at_each_layer = []
-        self.activation_derivative_at_each_layer = []
+        self.activations_at_each_layer = [x]
+        self.activation_derivative_at_each_layer = [x]
         
         neurons_at_each_layer = x
         
@@ -53,21 +53,16 @@ class BackPropagationNeuralNetwork(object):
     
     def backpropagate(self, error_cost):
         
-        error_at_current_layer = error_cost[0]
+        error = error_cost[0]
 
-        error_cost_at_current_layer = error_cost[1]
+        for i in range( len(self.hidden_layers)+1)[:: -1]:
 
-        for layer in range(1, len(self.hidden_layers)+1):
+            old_weight = self.weights[i]
 
-            activation_at_previous_layer = self.activations_at_each_layer[0 - layer]
+            self.weights[i] = self.weights[i] - (self.learning_rate * np.dot(self.activations_at_each_layer[i].T, error))
+            self.biases[ i] = self.biases[ i ] - (self.learning_rate * error)
+            error = np.multiply(np.dot(error, old_weight.T), self.activation_derivative_at_each_layer[i])
 
-            error_at_previous_layer = np.dot(error_at_current_layer , self.weights[0 - layer].T) * self.activation_derivative_at_each_layer[0 - layer - 1]
-
-            self.weights[0 - layer ] = self.weights[ 0 - layer ] - (self.learning_rate * np.dot(error_at_current_layer, activation_at_previous_layer.T))
-
-            self.biases[ 0 - layer] = self.biases[ 0 - layer] - (self.learning_rate * error_at_current_layer)
-
-            error_at_current_layer = error_at_previous_layer
 
 
     def initializeWeights(self,number_of_neurons, number_of_layers, number_of_output_neurons):
