@@ -10,5 +10,6 @@ x_test = data['x_test']
 y_train = data['y_train']
 y_test = data['y_test']
 
-back_propagation = BackPropagationNeuralNetwork(learning_rate = 0.01, epochs = 10)
-back_propagation.fit(x_train[:100], y_train[:100])
+back_propagation = BackPropagationNeuralNetwork(learning_rate = 0.01, epochs = 1000)
+back_propagation.fit(x_train[:10000], y_train[:10000])
+back_propagation.predict(x_test[:10000], y_test[:10000])

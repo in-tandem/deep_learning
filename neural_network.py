@@ -141,6 +141,8 @@ class BackPropagationNeuralNetwork(object):
         self.initializeBiases(x.shape[0], self.hidden_layers, number_of_output_neurons)
         self.initializeWeights(x.shape[1], self.hidden_layers, number_of_output_neurons)
 
+        original_target = y
+
         y = self.one_hot_encode_target(y)
 
         for epoch in range(self.epochs):
@@ -160,11 +162,19 @@ class BackPropagationNeuralNetwork(object):
 
             self.backpropagate(error_cost_at_output_layer)
 
+        print(self.cost_matrix)
 
+    def predict(self, x, y):
+        
+        error_cost_at_output_layer = self.feedforward(x, self.one_hot_encode_target(y))
 
-    def predict(self, x):
-        pass
+        predictions_at_this_epoch = self.activations_at_each_layer[len(self.activations_at_each_layer) - 1]
 
+        predictions = np.argmax(predictions_at_this_epoch, axis = 1)
+
+        print('expected test values ', y)
+        print('predictions ', predictions)
+        print('training accuracy', (np.sum(y==predictions)).astype(np.float)/x.shape[0])
 
     def calculateCost(self, y, y_predicted):
 
