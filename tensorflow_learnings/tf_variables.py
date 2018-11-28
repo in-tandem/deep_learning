@@ -56,3 +56,11 @@ with tf.Session() as session:
     v6 = v6.assign([11,22, 33])
 
     print(session.run(v6))
+
+    v4.assign(v4 + 8)
+
+    print(session.run(v4))
+
+    v4 = v4.assign_add(8)
+
+    print(session.run(v4))
