@@ -1,6 +1,10 @@
 import numpy as np 
 
 ##TODO : mini batches and cost function at end of each epoch
+##TODO : weights and bias initializations are incorrect, every time test set differs from training set, results in errors
+##TODO : predict should not take y parameter
+##TODO : accuracy is real low: regularization term to be added
+
 class BackPropagationNeuralNetwork(object):
 
     def __init__(self, learning_rate, epochs, batchsize = 50, hidden_layers = [30]):
