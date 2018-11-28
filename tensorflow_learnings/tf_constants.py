@@ -15,8 +15,8 @@ constant_7_tensor = tf.constant('aaa', shape = [2,3])  ## creates a 2*3 matrix o
 
 
 ## another way to create constants are tf.fill
-constant_8_tensor = tf.fill(dims = [2,3], value = 3) ##dims are the dimensions.
-
+constant_8_tensor = tf.fill(dims = [2,3], value = 3) ##dims are the dimensions.creates a matrix
+constant_9_tensor = tf.fill(dims = [2], value = 3) ##dims are the dimensions. creates a array
 
 ##in the above linees we only initialized the nodes. to execute the same, we would
 ## need to run it in session
@@ -31,3 +31,4 @@ with tf.Session() as session:
     print(session.run(constant_6_tensor))
     print(session.run(constant_7_tensor), type(session.run(constant_7_tensor)))
     print(session.run(constant_8_tensor))
+    print(session.run(constant_9_tensor))
