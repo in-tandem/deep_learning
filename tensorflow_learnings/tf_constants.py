@@ -11,7 +11,15 @@ constant_3_tensor = tf.constant('this is a constant', dtype = tf.string, shape =
 constant_4_tensor = tf.constant('this is a constant', dtype = tf.string, shape = [2, 2])##creates a 2*2 matrix
 constant_5_tensor = tf.constant([1,2,3,], name = 'another_name') 
 constant_6_tensor = tf.constant(2, shape = [2,3])  ## creates a 2*3 matrix of each value of 2
+constant_7_tensor = tf.constant('aaa', shape = [2,3])  ## creates a 2*3 matrix of each value of 2
 
+
+## another way to create constants are tf.fill
+constant_8_tensor = tf.fill(dims = [2,3], value = 3) ##dims are the dimensions.
+
+
+##in the above linees we only initialized the nodes. to execute the same, we would
+## need to run it in session
 with tf.Session() as session:
 
     print(constant_1_tensor.eval(), type(constant_1_tensor.eval()))
@@ -21,4 +29,5 @@ with tf.Session() as session:
     print(session.run(constant_4_tensor)) ## prints  2*2 matrix
     print(session.run(constant_5_tensor), type(session.run(constant_5_tensor))) ##[1 2 3] <class 'numpy.ndarray'>
     print(session.run(constant_6_tensor))
-
+    print(session.run(constant_7_tensor), type(session.run(constant_7_tensor)))
+    print(session.run(constant_8_tensor))
