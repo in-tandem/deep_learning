@@ -10,6 +10,8 @@ p1 = tf.placeholder(dtype = tf.int32, name ='some_p', shape = [1,2])
 
 p2 = tf.placeholder(dtype=tf.int32, shape = None) ##anything can be fed to this particular placeholder
 
+x = tf.placeholder(dtype = tf.float32, shape = None, name = 'x')
+
 print(p1.__class__)
 with tf.Session() as session:
 
@@ -22,4 +24,8 @@ with tf.Session() as session:
     session.run(p2, feed_dict = {p2 : np.random.randn(2,4)})
 
     session.run(p2, feed_dict = {p2 : np.random.randn(1,4)})
+
+
+    session.run(x, feed_dict = {x : np.random.randn(1,4)})
+
 
