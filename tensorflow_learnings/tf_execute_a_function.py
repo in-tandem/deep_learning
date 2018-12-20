@@ -24,6 +24,14 @@ with tf.Session(graph = graph) as session:
 
     y = tf.add(tf.matmul(a,x) ,b )
 
-    value = session.run(y, feed_dict = {x : np.random.randn(2,5), a:np.random.randn(3,2)})
+    session.run(y, feed_dict = {x : np.random.randn(2,5), a:np.random.randn(3,2)})
 
-    print(value, value.__class__)
+    # print(value, value.__class__)
+
+    # summary, _ = session.run([merged, value], feed_dict = {})
+    # writer.add_summary(summary)
+    # writer.flush()
+    # print session.run(y, feed_dict = {x : np.random.randn(2,5), a:np.random.randn(3,2)})
+    merge = tf.summary.merge_all() 
+
+    writer = tf.summary.FileWriter("logs", session.graph)
